@@ -1,0 +1,46 @@
+import { ApiClient } from '../client/apiClient';
+import { CreateSellOrderRequest, Order, OrderEligibilityResponse, PrimerCheckoutFlowOptions, CreateOrderAndShowPrimerCheckoutResult, PrimerCheckoutWebViewResult } from '../types';
+import { CheckoutWebViewProps } from '../components/CheckoutWebView';
+import { PrimerCheckoutWrapper } from '../primer/PrimerCheckoutWrapper';
+export declare class SellModule {
+    private client;
+    private primerCheckout;
+    constructor(client: ApiClient, options?: {
+        primerCheckout?: PrimerCheckoutWrapper;
+    });
+    /**
+     * Call the eligibility endpoint with the same parameters as create order.
+     * Use `paymentReady` to choose flow: `true` → {@link createOrderAndShowPrimerCheckout};
+     * false/absent → {@link createOrder} then {@link initializeCheckoutWebView}.
+     */
+    checkEligibility(request: CreateSellOrderRequest): Promise<OrderEligibilityResponse>;
+    /**
+     * Check eligibility, then create order and choose checkout flow automatically:
+     * - If `paymentReady === true` → {@link createOrderAndShowPrimerCheckout} (Primer `Order` or WebView result).
+     * - If `paymentReady` is false or absent → {@link createOrder}; use {@link initializeCheckoutWebView} for WebView checkout.
+     */
+    createOrderWithEligibilityCheck(request: CreateSellOrderRequest): Promise<Order | PrimerCheckoutWebViewResult>;
+    /**
+     * Create a new sell order
+     */
+    createOrder(request: CreateSellOrderRequest): Promise<Order>;
+    /**
+     * Create a sell order and show the Primer checkout flow for the chosen payment method.
+     * If the order has `nativeToken`, presents Primer and returns the `Order`.
+     * If there is no `nativeToken` but `checkoutUrl` is present, returns {@link PrimerCheckoutWebViewResult}.
+     * @param options - `paymentMethod` for Primer (default `card`); `webViewProps` extras when falling back to WebView.
+     */
+    createOrderAndShowPrimerCheckout(request: CreateSellOrderRequest, options?: PrimerCheckoutFlowOptions): Promise<CreateOrderAndShowPrimerCheckoutResult>;
+    /**
+     * Get sell order details by order ID
+     */
+    getOrder(orderId: string): Promise<Order>;
+    /**
+     * Get sell orders by account reference
+     */
+    getOrdersByAccount(externalCustomerId: string, perPage?: number, page?: number): Promise<Order[]>;
+    /**
+     * Get WebView props for initializing a checkout WebView from an order
+     */
+    initializeCheckoutWebView(order: Order, additionalProps?: Omit<CheckoutWebViewProps, 'checkoutUrl' | 'visible'>): CheckoutWebViewProps;
+}
