@@ -7,6 +7,7 @@ import { PaymentMethodsModule } from './modules/paymentMethods';
 import { CountriesModule } from './modules/countries';
 import { CurrenciesModule } from './modules/currencies';
 import { CustomerIdentityModule } from './modules/customerIdentity';
+import { KycModule } from './modules/kyc';
 import { PrimerCheckoutWrapper } from './primer/PrimerCheckoutWrapper';
 
 function defaultPrimerCallbacks() {
@@ -25,6 +26,7 @@ export class Banxa {
   public countries: CountriesModule;
   public currencies: CurrenciesModule;
   public customerIdentity: CustomerIdentityModule;
+  public kyc: KycModule;
 
   private client: ApiClient;
 
@@ -48,6 +50,7 @@ export class Banxa {
     this.countries = new CountriesModule(this.client);
     this.currencies = new CurrenciesModule(this.client);
     this.customerIdentity = new CustomerIdentityModule(this.client);
+    this.kyc = new KycModule(this.client);
   }
 }
 

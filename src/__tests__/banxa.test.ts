@@ -8,6 +8,7 @@ import { PaymentMethodsModule } from '../modules/paymentMethods';
 import { CountriesModule } from '../modules/countries';
 import { CurrenciesModule } from '../modules/currencies';
 import { CustomerIdentityModule } from '../modules/customerIdentity';
+import { KycModule } from '../modules/kyc';
 
 jest.mock('../client/apiClient');
 
@@ -29,6 +30,7 @@ describe('Banxa', () => {
       expect(banxa.countries).toBeInstanceOf(CountriesModule);
       expect(banxa.currencies).toBeInstanceOf(CurrenciesModule);
       expect(banxa.customerIdentity).toBeInstanceOf(CustomerIdentityModule);
+      expect(banxa.kyc).toBeInstanceOf(KycModule);
     });
 
     it('should throw error if apiKey is missing', () => {
@@ -116,6 +118,12 @@ describe('Banxa', () => {
       expect(banxa.customerIdentity).toBeDefined();
       expect(typeof banxa.customerIdentity.registerCustomerIdentity).toBe('function');
       expect(typeof banxa.customerIdentity.getCustomerIdentity).toBe('function');
+    });
+
+    it('should provide access to kyc module', () => {
+      expect(banxa.kyc).toBeDefined();
+      expect(typeof banxa.kyc.createSession).toBe('function');
+      expect(typeof banxa.kyc.initializeHostedKycWebView).toBe('function');
     });
   });
 });
