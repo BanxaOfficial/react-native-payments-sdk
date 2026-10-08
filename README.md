@@ -294,6 +294,51 @@ const identity = await banxa.customerIdentity.registerCustomerIdentity({
 const customerIdentity = await banxa.customerIdentity.getCustomerIdentity('user-123');
 ```
 
+### Hosted KYC
+
+Verify a customer **before any order exists**, so native payments aren't gated behind the partner running their own KYC. `createSession` is idempotent per `(merchant, externalCustomerId)` for one hour — retrying on a remount is safe and returns the original link.
+
+```typescript
+import { HostedKycWebView } from '@banxa/react-native-sdk';
+
+// Create the session — prefer creating this on your backend and passing the result to the
+// app, since createSession() ships your partner API key to wherever it's called.
+const returnUrl = 'https://yourapp.com/kyc-return'; // or a deep link, e.g. 'myapp://kyc-return'
+const session = await banxa.kyc.createSession({
+  externalCustomerId: 'user-123',
+  tier: 'standard', // 'standard' | 'express' | 'enhanced', defaults to 'standard'
+  country: 'US',
+  returnUrl,
+});
+
+const webViewProps = banxa.kyc.initializeHostedKycWebView(session, {
+  onClose: () => setShowKyc(false),
+  onComplete: () => {
+    // The customer finished the flow. 
+    setShowKyc(false);
+  },
+  onError: (error) => console.log('KYC error', error.code, error.message),
+  returnUrl,
+});
+
+// In your component render:
+{showKyc && <HostedKycWebView {...webViewProps} />}
+```
+
+Completion arrives on whichever channel fires first:
+
+- **`onComplete`** fires from a `banxa:kyc-complete` message posted by the hosted flow — only sent for merchants with the embedded iframe integration enabled.
+- Otherwise, completion is detected when the flow navigates to your `returnUrl` (pass it to `initializeHostedKycWebView`/`HostedKycWebView` so the WebView can match it).
+
+Both are wired automatically; you don't need to choose one.
+
+#### Camera and microphone
+
+The verification flow captures documents and a liveness video inside the WebView, so both platforms need explicit permission wiring — without it, capture fails silently:
+
+- **iOS**: add `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` to your app's `Info.plist`. `HostedKycWebView` already sets `mediaCapturePermissionGrantType="grant"` on the WebView; without the `Info.plist` keys, iOS refuses the grant regardless.
+- **Android**: declare `<uses-permission android:name="android.permission.CAMERA" />` and `<uses-permission android:name="android.permission.RECORD_AUDIO" />` in `AndroidManifest.xml`. `react-native-webview` requests the runtime grant automatically once the app holds these — no extra code needed on your side.
+
 ## Error Handling
 
 The SDK throws `BanxaSDKError` for API and network failures (this class implements the `BanxaError` shape from the type definitions):
