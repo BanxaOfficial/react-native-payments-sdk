@@ -49,10 +49,6 @@ export class ApiClient {
         : {}),
     } as Record<string, string>;
 
-    console.log('headers', headers);
-    console.log('url', url);
-    console.log('options', options);
-
     try {
       const response = await fetch(url, {
         ...options,
