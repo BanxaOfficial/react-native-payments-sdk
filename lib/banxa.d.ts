@@ -6,6 +6,7 @@ import { PaymentMethodsModule } from './modules/paymentMethods';
 import { CountriesModule } from './modules/countries';
 import { CurrenciesModule } from './modules/currencies';
 import { CustomerIdentityModule } from './modules/customerIdentity';
+import { KycModule } from './modules/kyc';
 export declare class Banxa {
     buy: BuyModule;
     sell: SellModule;
@@ -14,6 +15,7 @@ export declare class Banxa {
     countries: CountriesModule;
     currencies: CurrenciesModule;
     customerIdentity: CustomerIdentityModule;
+    kyc: KycModule;
     private client;
     constructor(config: BanxaConfig);
 }

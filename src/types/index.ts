@@ -286,5 +286,31 @@ export interface CustomerIdentity {
   updated_at: string;
 }
 
+// Hosted KYC API Types (Banxa v2: POST /kyc/sessions)
+export type KycTier = 'standard' | 'express' | 'enhanced';
+
+/** The request body for POST /kyc/sessions. */
+export interface CreateKycSessionRequest {
+  externalCustomerId: string;
+  /** Defaults to `standard` when omitted. */
+  tier?: KycTier;
+  country?: string;
+  returnUrl?: string;
+}
+
+/** The response from POST /kyc/sessions. */
+export interface KycSession {
+  redirectUrl: string;
+  /** When the link expires (ISO-8601). */
+  expiresAt: string;
+}
+
+/** The payload of the `banxa:*` messages the hosted KYC flow posts. */
+export interface HostedKycEventDetail {
+  status?: string;
+  code?: string | number;
+  message?: string;
+}
+
 
 
